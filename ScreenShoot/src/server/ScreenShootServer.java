@@ -53,7 +53,7 @@ public class ScreenShootServer {
 			return;
 		}
 		final PopupMenu popup = new PopupMenu();
-		final Image batman = new ImageIcon("ScreenshotServerIcon.png").getImage();
+		final Image batman = new ImageIcon(ClassLoader.getSystemClassLoader().getResource("ScreenshotServerIcon.png")).getImage();
 		final TrayIcon trayIcon = new TrayIcon(batman);
 		final SystemTray tray = SystemTray.getSystemTray();
 		
@@ -168,17 +168,22 @@ public class ScreenShootServer {
 	}
 
 	
-	public static void runServer()throws IOException, HeadlessException, AWTException{
-		serverSocket = new ServerSocket(port);
-		System.out.println("Server started. Listening on "+serverSocket.getLocalSocketAddress().toString());
-		while(true){
-			socket = serverSocket.accept();
-			System.out.println("client connected to server");
-			BufferedImage tosend = screenshot();
-			ImageIO.write(tosend, "png", socket.getOutputStream());
-			socket.getOutputStream().flush();
-			socket.close();
-			System.out.println("server closed the connection");
+	public static void runServer()throws HeadlessException, AWTException{
+		try{
+			serverSocket = new ServerSocket(port);
+			System.out.println("Server started. Listening on "+serverSocket.getLocalSocketAddress().toString());
+			while(true){
+				socket = serverSocket.accept();
+				System.out.println("client connected to server");
+				BufferedImage tosend = screenshot();
+				ImageIO.write(tosend, "png", socket.getOutputStream());
+				socket.getOutputStream().flush();
+				socket.close();
+				System.out.println("server closed the connection");
+			}
+		}catch(IOException e){
+			JOptionPane.showMessageDialog(null, e.getMessage(),"ERROR",JOptionPane.ERROR_MESSAGE);
+			System.exit(1);
 		}
 	}
 
